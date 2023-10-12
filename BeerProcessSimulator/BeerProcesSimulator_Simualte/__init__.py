@@ -162,8 +162,88 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         logging.info("TimeDate : " + str(TimeDate))
 
+        # Mass Balance
+
+        # Step 1 : Milling
+
+        m2 = m1
+
+        logging.info("m2 : " + str(m2))       
+
+        # Step 2 : Extraction 
+
+
+        m2b = Xk1 / m2 
+
+        logging.info("m2b : " + str(m2b))
+
+
+        m3 = m2 + m2a - m2b
+
+        logging.info("m3 : " + str(m3))
+
+        # Step 3 : Cooking 
+
+        m3b = m3a * Xk2
+
+        logging.info("m3b : " + str(m3b))
+
+        m4 = m3 + m3a - m3b - m3vap
+
+        logging.info("m4 : " + str(m4))
+
+        V3 = m3 / rho3
+
+        logging.info("V3 : " + str(V3))
+ 
+        V4 = m4 / rho4
+
+        logging.info("V4 : " + str(V4))
+
+        # Cooling 
+
+        m5 = m4 
+
+        logging.info("m5 : " + str(m5))
+
+        # Fermentation
+
+        m6 = m5 + m5a - m5b
+
+        logging.info("m6 : " + str(m6))      
+
+        V5b = m5b / rho5
+
+        logging.info("V5b : " + str(V5b))
+        
+        # Maturing and bottling 
+
+        m7 = m6
+
+        logging.info("m7 : " + str(m7))      
+
+        V7 = m7/rho7
+
+        logging.info("V7 : " + str(V7))      
+
+
+        # Insert Query
     
-   
+        #Create a connection string
+
+        cnxn = pyodbc.connect('DRIVER='+driver+';SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
+        cursor = cnxn.cursor()
+    
+      
+        try:
+        
+            insert_query ="INSERT INTO [dbo].[MassBalanceSimulated] ([Xk1],[Xk2],[m1],[m2],[m2b],[m3],[V3],[rho3],[m2a],[m3vap],[m3a],[m3b],[m4],[V4],[rho4],[m5],[V5],[rho5],[m5b],[V5b],[m6],[V6],[rho6],[m5a],[m7],[V7],[rho7],[Vol],[TimeDate]) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            cursor.execute(insert_query,Xk1,Xk2,m1,m2,m2b,m3,V3,rho3,m2a,m3vap,m3a,m3b,m4,V4,rho4,m5,V5,rho5,m5b,V5b,m6,V6,rho6,m5a,m7,V7,rho7,Vol,TimeDate)       
+        except:
+            cnxn.rollback()
+        finally:
+            cnxn.commit()
+            cnxn.close()
 
     return func.HttpResponse(
             "BeerProcessSimulatorSimulate function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
