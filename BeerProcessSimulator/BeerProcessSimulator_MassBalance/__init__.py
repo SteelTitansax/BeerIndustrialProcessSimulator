@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import azure.functions as func
@@ -5,10 +6,12 @@ import numpy as np
 import pyodbc
 
 
-def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('BeerProcessSimulatorSimulate trigger function processed a request...')
 
-    # SQL database variables declaration
+def main(mytimer: func.TimerRequest) -> None:
+    utc_timestamp = datetime.datetime.utcnow().replace(
+        tzinfo=datetime.timezone.utc).isoformat()
+
+ # SQL database variables declaration
 
     server = 'beerprocesssimulatorsql.database.windows.net'
     database = 'BeerProcessSimulatorSQL' 
@@ -29,7 +32,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     
       
     try:
-        select_query = 'SELECT TOP 1 * FROM [dbo].[MassBalanceSimulated]'
+        select_query = 'SELECT TOP 1 * FROM [dbo].[MassBalance]'
         cursor.execute(select_query)
         data = cursor.fetchall()
         logging.info(data)
@@ -226,6 +229,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         logging.info("V7 : " + str(V7))      
 
+
             
         #Insert Query
     
@@ -236,18 +240,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     
       
         try:
-            delete_query = "DELETE TOP (1) FROM [dbo].[MassBalanceSimulated]"
-            cursor.execute(delete_query)   
-            insert_query ="INSERT INTO [dbo].[MassBalanceSimulated] ([Xk1],[Xk2],[m1],[m2],[m2b],[m3],[V3],[rho3],[m2a],[m3vap],[m3a],[m3b],[m4],[V4],[rho4],[m5],[V5],[rho5],[m5b],[V5b],[m6],[V6],[rho6],[m5a],[m7],[V7],[rho7],[Vol],[TimeDate]) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-            cursor.execute(insert_query,Xk1,Xk2,m1,m2,m2b,m3,V3,rho3,m2a,m3vap,m3a,m3b,m4,V4,rho4,m5,V5,rho5,m5b,V5b,m6,V6,rho6,m5a,m7,V7,rho7,Vol,TimeDate)       
+            
+            insert_query ="INSERT INTO [dbo].[MassBalance] ([Xk1],[Xk2],[m1],[m2],[m2b],[m3],[V3],[rho3],[m2a],[m3vap],[m3a],[m3b],[m4],[V4],[rho4],[m5],[V5],[rho5],[m5b],[V5b],[m6],[V6],[rho6],[m5a],[m7],[V7],[rho7],[Vol],[TimeDate]) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+            cursor.execute(insert_query,Xk1,Xk2,m1,m2,m2b,m3,V3,rho3,m2a,m3vap,m3a,m3b,m4,V4,rho4,m5,V5,rho5,m5b,V5b,m6,V6,rho6,m5a,m7,V7,rho7,Vol,str(utc_timestamp)[0:19])       
         except:
             cnxn.rollback()
         finally:
             cnxn.commit()
             cnxn.close()
-
-
-    return func.HttpResponse(
-            "BeerProcessSimulatorSimulate function executed successfully.",
-            status_code=200
-    )
+ 
+    logging.info("dateTime : " + str(utc_timestamp)[0:19])
+    logging.info('BeerProcessSimulator function executed successfully at %s', utc_timestamp)

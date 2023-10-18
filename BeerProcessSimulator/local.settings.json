@@ -1,7 +1,8 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "",
-    "FUNCTIONS_WORKER_RUNTIME": "python"
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=beerprocesssimulatorfunc;AccountKey=FZXHwiA8XzazRFxa8TfHksNhkHXekRwF8Me5Xs0HItL7lSCvBHbnHwQPVs9rpcGG8Lf8OPFpqD7c+AStTCf1ng==;EndpointSuffix=core.windows.net",
+    "FUNCTIONS_WORKER_RUNTIME": "python",
+    "AzureWebJobs.BeerProcessSimulator_MassBalance.Disabled": "false"
   }
 }
